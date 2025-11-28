@@ -11,6 +11,7 @@ from torch import optim, tensor
 from losses import regression_loss, digitclassifier_loss, languageid_loss, digitconvolution_Loss
 from torch import movedim
 
+from models import PerceptronModel
 
 """
 ##################
@@ -19,7 +20,7 @@ from torch import movedim
 """
 
 
-def train_perceptron(model, dataset):
+def train_perceptron(model: PerceptronModel, dataset):
     """
     Train the perceptron until convergence.
     You can iterate through DataLoader in order to 
@@ -31,6 +32,15 @@ def train_perceptron(model, dataset):
     with no_grad():
         dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
         "*** YOUR CODE HERE ***"
+        fail = -1
+        while fail != 0:
+            fail = 0
+            for dict in dataloader:
+                features = dict["x"]
+                label = dict["label"]
+                if model.get_prediction(features) != label:
+                    fail += 1
+                    model.w += features * label
 
 
 def train_regression(model, dataset):
