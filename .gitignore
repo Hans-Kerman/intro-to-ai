@@ -1,0 +1,129 @@
+# ===================================================================
+#      .gitignore for AI Introduction Coursework (Python)
+# ===================================================================
+
+# ---------------------------------
+# General Python & Environment
+# ---------------------------------
+# 字节码文件和缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境 (非常重要！)
+# 如果你在项目文件夹内创建了 venv, anaconda env, etc.
+# 常见的虚拟环境文件夹名：
+venv/
+env/
+.venv/
+.env/
+*/venv/
+*/.venv/
+
+# pip 生成的文件
+pip-freeze.txt
+wheelhouse/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# ---------------------------------
+# IDE & Editor Specific
+# ---------------------------------
+# --- Visual Studio Code ---
+.vscode/
+# 排除所有 .vscode 下的文件，但保留少数有用的共享配置
+# 如果你想和团队共享启动配置或推荐插件，可以反向忽略它们
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
+
+# --- PyCharm ---
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# --- Jupyter Notebook ---
+# Notebook 检查点文件
+.ipynb_checkpoints/
+# nbgrader 生成的文件 (如果使用)
+nbgrader.log
+*.nbgrader.cfg
+
+# ---------------------------------
+# OS Specific files
+# ---------------------------------
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Windows ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---------------------------------
+# Machine Learning / Data Science Specific
+# ---------------------------------
+# 数据集 (通常很大，不应提交到 Git)
+# 虽然你提到暂时不排除，但这是一个好习惯，先注释掉
+# data/
+# *.csv
+# *.json
+# *.pickle
+# *.pkl
+# *.h5
+# *.dat
+
+# 模型文件和日志
+# 训练好的模型通常很大
+*.pt
+*.pth
+*.onnx
+*.pb
+*.tflite
+*.model
+*.weights
+*.ckpt
+
+# TensorBoard 和其他日志文件
+logs/
+runs/
+lightning_logs/
+
+# 缓存文件
+.cache/
+*.log
+*.tmp
+*.temp
+
+# ---------------------------------
+# Linters and Formatters cache
+# ---------------------------------
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ---------------------------------
+# Other
+# ---------------------------------
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+
+# 敏感信息 (API Keys, etc.)
+# 最好用专门的文件管理，并在此忽略
+.secrets
+credentials.json
+*.env
+
+
