@@ -38,7 +38,7 @@ def train_perceptron(model: PerceptronModel, dataset):
             for batch in dataloader:
                 features = batch["x"]
                 label = batch["label"]
-                if model.get_prebatchion(features) != label:
+                if model.get_prediction(features) != label:
                     fail += 1
                     model.w += features * label
 
