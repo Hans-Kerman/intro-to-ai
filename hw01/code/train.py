@@ -11,7 +11,7 @@ from torch import optim, tensor
 from losses import regression_loss, digitclassifier_loss, languageid_loss, digitconvolution_Loss
 from torch import movedim
 
-from models import PerceptronModel
+from models import PerceptronModel, RegressionModel
 
 """
 ##################
@@ -27,7 +27,7 @@ def train_perceptron(model: PerceptronModel, dataset):
     retrieve all the batches you need to train on.
 
     Each sample in the dataloader is in the form {'x': features, 'label': label} where label
-    is the item we need to predict based off of its features.
+    is the item we need to prebatch based off of its features.
     """
     with no_grad():
         dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
@@ -35,15 +35,15 @@ def train_perceptron(model: PerceptronModel, dataset):
         fail = -1
         while fail != 0:
             fail = 0
-            for dict in dataloader:
-                features = dict["x"]
-                label = dict["label"]
-                if model.get_prediction(features) != label:
+            for batch in dataloader:
+                features = batch["x"]
+                label = batch["label"]
+                if model.get_prebatchion(features) != label:
                     fail += 1
                     model.w += features * label
 
 
-def train_regression(model, dataset):
+def train_regression(model: RegressionModel, dataset):
     """
     Trains the model.
 
@@ -51,7 +51,7 @@ def train_regression(model, dataset):
     batch size. You can look at PerceptronModel as a guideline for how you should implement the DataLoader
 
     Each sample in the dataloader object will be in the form {'x': features, 'label': label} where label
-    is the item we need to predict based off of its features.
+    is the item we need to prebatch based off of its features.
 
     Inputs:
         model: Pytorch model to use
@@ -59,6 +59,36 @@ def train_regression(model, dataset):
         
     """
     "*** YOUR CODE HERE ***"
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+    count: int = 1
+    total_loss: float = 1.0
+    epoch = 0
+    while True:
+        count = 0
+        total_loss = 0
+        epoch += 1
+
+        for batch in dataloader:
+            x = batch["x"]
+            label = batch["label"]
+
+            optimizer.zero_grad()
+
+            get_loss = regression_loss(y=label, y_pred=model(x))
+
+            get_loss.backward()
+            optimizer.step()
+
+            count += 1
+            total_loss += get_loss.item()
+        
+        if epoch == 5000:
+            if total_loss / count > 0.02:
+                epoch = 0
+            else:
+                break
+            
 
 
 def train_digitclassifier(model, dataset):
