@@ -29,6 +29,7 @@ def digitclassifier_loss(y_pred, y):
     Returns: a loss tensor
     """
     """ YOUR CODE HERE """
+    return cross_entropy(input=y_pred, target=y)
 
 
 def languageid_loss(y_pred, y):

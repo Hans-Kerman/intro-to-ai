@@ -11,7 +11,7 @@ from torch import optim, tensor
 from losses import regression_loss, digitclassifier_loss, languageid_loss, digitconvolution_Loss
 from torch import movedim
 
-from models import PerceptronModel, RegressionModel
+from models import PerceptronModel, RegressionModel, DigitClassificationModel
 
 """
 ##################
@@ -91,12 +91,28 @@ def train_regression(model: RegressionModel, dataset):
             
 
 
-def train_digitclassifier(model, dataset):
+def train_digitclassifier(model: DigitClassificationModel, dataset):
     """
     Trains the model.
     """
     model.train()
     """ YOUR CODE HERE """
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    dataloader = DataLoader(dataset, batch_size=128, shuffle=True)
+    while True:
+        for batch in dataloader:
+            x = batch["x"]
+            label = batch["label"]
+
+            optimizer.zero_grad()   
+
+            get_loss = digitclassifier_loss(y_pred=model(x), y=label)
+
+            get_loss.backward()
+            optimizer.step()
+
+        if dataset.get_validation_accuracy() > 0.98:
+            break         
 
 
 def train_languageid(model, dataset):
