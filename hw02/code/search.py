@@ -11,7 +11,6 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-
 """
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
@@ -87,7 +86,46 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
+    #print("Start:", problem.getStartState())   获得起始节点位置,返回[int, int]
+    #print("Is the start a goal?", problem.isGoalState(problem.getStartState()))    判断是否到达    
+    #print("Start's successors:", problem.getSuccessors(problem.getStartState()))   
+    #当前可到达的位置，返回list[( (5, 4), 'South', 1 )]
+    visited:set[tuple[int, int]] = set()
+    gopath = util.Stack()
+    start_state: tuple[int, int] = problem.getStartState()
+    def dodfs(current_stat: tuple[int, int], step: str):
+        if current_stat in visited:
+            return False
+        else:
+            visited.add(current_stat)
+        if problem.isGoalState(current_stat):
+            if step != "":
+                gopath.push(step)
+            return True
+        else:
+            successors: list[tuple[tuple[int, int], str, int]] = problem.getSuccessors(current_stat)
+            for i in range(len(successors)):
+                state, step, _ = successors[i]
+                if dodfs(current_stat=state, step=step):
+                    if step != "":
+                        gopath.push(step)
+                    return True
+                
+            return 0
+    dodfs(start_state, "")
+    tmp: list[str] = []
+    while not gopath.isEmpty():
+        tmp.append(gopath.pop())
+    return tmp
+    
+        
+
+
+
+
+
+
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
