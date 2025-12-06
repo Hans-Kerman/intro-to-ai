@@ -108,18 +108,27 @@ def depthFirstSearch(problem: SearchProblem):
                 gopath.push((next_state, steps+[one_step]))
     return []
 
-        
-
-
-
-
-
-
-
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
+    visited:set[tuple[int, int]] = set()
+    start_state = problem.getStartState()
+    waiting = util.Queue()
+    waiting.push((start_state, []))
+    while not waiting.isEmpty():
+        current_stat, steps = waiting.pop()
+        if current_stat in visited:
+            continue
+        visited.add(current_stat)
+        if problem.isGoalState(current_stat):
+            return steps
+        
+        for next_state, one_step, _ in problem.getSuccessors(current_stat):
+            if next_state not in visited:
+                waiting.push((next_state, steps+[one_step]))
+    return []
+
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
