@@ -92,33 +92,22 @@ def depthFirstSearch(problem: SearchProblem):
     #print("Start's successors:", problem.getSuccessors(problem.getStartState()))   
     #当前可到达的位置，返回list[( (5, 4), 'South', 1 )]
     visited:set[tuple[int, int]] = set()
-    gopath = util.Stack()
-    start_state: tuple[int, int] = problem.getStartState()
-    def dodfs(current_stat: tuple[int, int], step: str):
-        if current_stat in visited:
-            return False
-        else:
-            visited.add(current_stat)
-        if problem.isGoalState(current_stat):
-            if step != "":
-                gopath.push(step)
-            return True
-        else:
-            successors: list[tuple[tuple[int, int], str, int]] = problem.getSuccessors(current_stat)
-            for i in range(len(successors)):
-                state, step, _ = successors[i]
-                if dodfs(current_stat=state, step=step):
-                    if step != "":
-                        gopath.push(step)
-                    return True
-                
-            return 0
-    dodfs(start_state, "")
-    tmp: list[str] = []
+    gopath = util.Stack()   #(当前状态, 到达当前状态的动作序列) tuple[tuple[int, int], list[str]]
+    start_state = problem.getStartState()
+    gopath.push((start_state, []))
     while not gopath.isEmpty():
-        tmp.append(gopath.pop())
-    return tmp
-    
+        current_stat, steps = gopath.pop()
+        if current_stat in visited:
+            continue
+        visited.add(current_stat)
+        if problem.isGoalState(current_stat):
+            return steps
+        
+        for next_state, one_step, _ in problem.getSuccessors(current_stat):
+            if next_state not in visited:
+                gopath.push((next_state, steps+[one_step]))
+    return []
+
         
 
 
