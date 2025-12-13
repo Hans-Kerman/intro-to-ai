@@ -90,9 +90,12 @@ class ReflexAgent(Agent):
                 one_goast_pos = oneGoastState.configuration.getPosition()
                 x, y = one_goast_pos
                 score += 0.1 / (abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy)
+        foodcount = 0
+        for oneFood in newFood.asList():
+            foodcount += 1
         for oneFood in newFood.asList():
             x, y = oneFood
-            score += 0.1 / (abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy)
+            score += 1.2 / foodcount / (abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy)
         return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
