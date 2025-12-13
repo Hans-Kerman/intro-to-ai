@@ -16,7 +16,7 @@ from util import manhattanDistance
 from game import Directions
 import random, util
 
-from game import Agent
+from game import Agent, AgentState
 from pacman import GameState
 
 class ReflexAgent(Agent):
@@ -52,7 +52,7 @@ class ReflexAgent(Agent):
 
         return legalMoves[chosenIndex]
 
-    def evaluationFunction(self, currentGameState: GameState, action):
+    def evaluationFunction(self, currentGameState: GameState, action) -> float:
         """
         Design a better evaluation function here.
 
@@ -69,13 +69,31 @@ class ReflexAgent(Agent):
         """
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState: GameState = currentGameState.generatePacmanSuccessor(action)    #返回一个完整的游戏状态参数
-        newPos = successorGameState.getPacmanPosition()         #Pacman position after moving
+        newPos: tuple[int, int] = successorGameState.getPacmanPosition()         #Pacman position after moving
         newFood = successorGameState.getFood()                  #the remaining food
-        newGhostStates = successorGameState.getGhostStates()    #the number of moves that each ghost will remain scared because of Pacman having eaten a power pellet
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
+        newGhostStates: list[AgentState] = successorGameState.getGhostStates()    
+        newScaredTimes: list[int] = [ghostState.scaredTimer for ghostState in newGhostStates]#the number of moves that each ghost will remain scared because of Pacman having eaten a power pellet
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        mapx = currentGameState.data.layout.width
+        mapy = currentGameState.data.layout.height
+        score = successorGameState.getScore()
+        for oneGoastState in newGhostStates:    #遍历幽灵，距离越远越安全
+            one_goast_pos: tuple[int, int]
+            if  oneGoastState.scaredTimer <= 0:
+                one_goast_pos = oneGoastState.configuration.getPosition()
+                x, y = one_goast_pos
+                if (abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy) <= 0.05:
+                    score -=1000
+                else:
+                    score += abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy
+            else:
+                one_goast_pos = oneGoastState.configuration.getPosition()
+                x, y = one_goast_pos
+                score += 0.1 / (abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy)
+        for oneFood in newFood.asList():
+            x, y = oneFood
+            score += 0.1 / (abs(x - newPos[0]) / mapx + abs(y - newPos[1]) / mapy)
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
