@@ -108,97 +108,100 @@ def add_noise(content, noise_factor=0.00):
     return content
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Neural Style Transfer')
-    parser.add_argument('--content', type=str, default='weinisi.jpg')
-    parser.add_argument('--style', type=str, default='style.jpg')
-    parser.add_argument('--steps', type=int, default=50001)
-    parser.add_argument('--size', type=int, default=512)
-    parser.add_argument('--style_weight', type=float, default=1e6)
-    parser.add_argument('--content_weight', type=float, default=1)
-    parser.add_argument('--lr', type=float, default=0.01)
-    args = parser.parse_args()
+    for filename in os.listdir("../campus_pic"):
+        INPUT_PIC = "../campus_pic/" + filename
+        OUTPUT_PIC = "../campus_pic_out/" + filename
+        parser = argparse.ArgumentParser(description='Neural Style Transfer')
+        parser.add_argument('--content', type=str, default=INPUT_PIC)
+        parser.add_argument('--style', type=str, default='style.jpg')
+        parser.add_argument('--steps', type=int, default=50001)
+        parser.add_argument('--size', type=int, default=512)
+        parser.add_argument('--style_weight', type=float, default=1e6)
+        parser.add_argument('--content_weight', type=float, default=1)
+        parser.add_argument('--lr', type=float, default=0.01)
+        args = parser.parse_args()
 
-    EXP_NAME = f"exp_{get_timestamp()}"
-    output_dir = f'output/{EXP_NAME}'
-    os.makedirs('losses', exist_ok=True)
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(f'checkpoints/{EXP_NAME}', exist_ok=True)
+        EXP_NAME = f"exp_{get_timestamp()}"
+        output_dir = f'output/{EXP_NAME}'
+        os.makedirs('losses', exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(f'checkpoints/{EXP_NAME}', exist_ok=True)
 
-    CONTENT_LAYERS = ['relu4_2']
-    STYLE_LAYERS = ['relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1']
-    MAX_SIZE = args.size
-    STYLE_WEIGHT = args.style_weight
-    CONTENT_WEIGHT = args.content_weight
-    TOTAL_STEPS = args.steps
-    LEARNING_RATE = args.lr
+        CONTENT_LAYERS = ['relu4_2']
+        STYLE_LAYERS = ['relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1']
+        MAX_SIZE = args.size
+        STYLE_WEIGHT = args.style_weight
+        CONTENT_WEIGHT = args.content_weight
+        TOTAL_STEPS = args.steps
+        LEARNING_RATE = args.lr
 
-    print("🔧 Starting style transfer with parameters:")
-    print(f"📷 Content: {args.content} | 🎨 Style: {args.style}")
-    print(f"📏 Max size: {MAX_SIZE} | ⏱️ Steps: {TOTAL_STEPS}")
-    print(f"🎭 Style weight: {STYLE_WEIGHT} | 🧱 Content weight: {CONTENT_WEIGHT}")
+        print("🔧 Starting style transfer with parameters:")
+        print(f"📷 Content: {args.content} | 🎨 Style: {args.style}")
+        print(f"📏 Max size: {MAX_SIZE} | ⏱️ Steps: {TOTAL_STEPS}")
+        print(f"🎭 Style weight: {STYLE_WEIGHT} | 🧱 Content weight: {CONTENT_WEIGHT}")
 
-    vgg = VGG19().to(device)
-    style_loss = StyleLoss().to(device)
-    content_loss = ContentLoss().to(device)
+        vgg = VGG19().to(device)
+        style_loss = StyleLoss().to(device)
+        content_loss = ContentLoss().to(device)
 
-    content_img, content_size = load_image(args.content, max_size=MAX_SIZE)
-    style_img, _ = load_image(args.style, max_size=MAX_SIZE)
-    input_img = add_noise(content_img.clone(), noise_factor=0.00)
-    input_img.requires_grad_(True)
+        content_img, content_size = load_image(args.content, max_size=MAX_SIZE)
+        style_img, _ = load_image(args.style, max_size=MAX_SIZE)
+        input_img = add_noise(content_img.clone(), noise_factor=0.00)
+        input_img.requires_grad_(True)
 
-    content_features = vgg(content_img, CONTENT_LAYERS)
-    style_features = vgg(style_img, STYLE_LAYERS)
+        content_features = vgg(content_img, CONTENT_LAYERS)
+        style_features = vgg(style_img, STYLE_LAYERS)
 
-    optimizer = optim.Adam([input_img], lr=LEARNING_RATE)
+        optimizer = optim.Adam([input_img], lr=LEARNING_RATE)
 
-    csv_path = f'checkpoints/{EXP_NAME}/loss_log.csv'
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Step', 'Content Loss', 'Style Loss', 'Total Loss', 'Time (s)'])
+        csv_path = f'checkpoints/{EXP_NAME}/loss_log.csv'
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Step', 'Content Loss', 'Style Loss', 'Total Loss', 'Time (s)'])
 
-    best_total_loss = float('inf')
-    best_img = None
+        best_total_loss = float('inf')
+        best_img = None
 
-    for step in range(TOTAL_STEPS):
-        step_start = time.time()
+        for step in range(TOTAL_STEPS):
+            step_start = time.time()
 
-        input_features = vgg(input_img, CONTENT_LAYERS + STYLE_LAYERS)
+            input_features = vgg(input_img, CONTENT_LAYERS + STYLE_LAYERS)
 
-        content_loss_value = sum(content_loss(input_features[l], content_features[l]) for l in CONTENT_LAYERS)
-        style_loss_value = sum(style_loss(input_features[l], style_features[l]) for l in STYLE_LAYERS)
-        total_loss = CONTENT_WEIGHT * content_loss_value + STYLE_WEIGHT * style_loss_value
+            content_loss_value = sum(content_loss(input_features[l], content_features[l]) for l in CONTENT_LAYERS)
+            style_loss_value = sum(style_loss(input_features[l], style_features[l]) for l in STYLE_LAYERS)
+            total_loss = CONTENT_WEIGHT * content_loss_value + STYLE_WEIGHT * style_loss_value
 
-        optimizer.zero_grad()
-        total_loss.backward()
-        optimizer.step()
+            optimizer.zero_grad()
+            total_loss.backward()
+            optimizer.step()
 
-        step_time = time.time() - step_start
+            step_time = time.time() - step_start
 
-        if torch.isnan(total_loss) or torch.isinf(total_loss):
-            print(f"❌ Loss is NaN/Inf at step {step}, stopping.")
-            break
+            if torch.isnan(total_loss) or torch.isinf(total_loss):
+                print(f"❌ Loss is NaN/Inf at step {step}, stopping.")
+                break
 
-        if step % 100 == 0:
-            with open(csv_path, 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    step,
-                    content_loss_value.item(),
-                    style_loss_value.item(),
-                    total_loss.item(),
-                    round(step_time, 4)
-                ])
-            save_image_tensor(input_img, f'{output_dir}/step_{step}.jpg', content_size)
+            if step % 100 == 0:
+                with open(csv_path, 'a', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow([
+                        step,
+                        content_loss_value.item(),
+                        style_loss_value.item(),
+                        total_loss.item(),
+                        round(step_time, 4)
+                    ])
+                save_image_tensor(input_img, f'{output_dir}/step_{step}.jpg', content_size)
 
-        if total_loss < best_total_loss:
-            best_total_loss = total_loss
-            best_img = input_img.clone().detach()
-            save_image_tensor(best_img, f'{output_dir}/best_total_loss.jpg', content_size)
+            if total_loss < best_total_loss:
+                best_total_loss = total_loss
+                best_img = input_img.clone().detach()
+                save_image_tensor(best_img, f'{output_dir}/best_total_loss.jpg', content_size)
 
-        if step % 500 == 0:
-            print(f'[{step}/{TOTAL_STEPS}] 🎯 Content: {content_loss_value.item():.4f}, '
-                  f'Style: {style_loss_value.item():.4f}, Total: {total_loss.item():.4f}')
+            if step % 500 == 0:
+                print(f'[{step}/{TOTAL_STEPS}] 🎯 Content: {content_loss_value.item():.4f}, '
+                    f'Style: {style_loss_value.item():.4f}, Total: {total_loss.item():.4f}')
 
-    save_image_tensor(input_img, f'{output_dir}/final_result.jpg', content_size)
-    print(f'✅ Finished! Best Total Loss: {best_total_loss.item():.4f}')
-    print(f'📁 Results saved in: {output_dir}')
+        save_image_tensor(input_img, OUTPUT_PIC, content_size)
+        print(f'✅ Finished! Best Total Loss: {best_total_loss.item():.4f}')
+        print(f'📁 Results saved in: {output_dir}')
